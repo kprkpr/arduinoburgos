@@ -1,0 +1,165 @@
+#include <LiquidCrystal.h> //al principio de todo el codigo, incluye la libreria del LCD
+#include "pitches.h"
+//LiquidCrystal(rs, enable, d4, d5, d6, d7)
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); //define los pines de conexion, se pone justo debajo de #include
+volatile int cancion[] = {NOTE_E4,NOTE_DS4,NOTE_GS3,NOTE_CS4,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_E3,NOTE_B3,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_GS3,NOTE_GS3,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_FS3,NOTE_CS4,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_E4,NOTE_B3,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_E4,NOTE_B3,NOTE_DS4,NOTE_E4,NOTE_E4,NOTE_DS4,NOTE_E4,NOTE_B3,NOTE_DS4,NOTE_E4,NOTE_GS4,NOTE_A4,NOTE_FS4,NOTE_E4,NOTE_E4};
+volatile int tiempo[] = {3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,2,2,3,3,4,2,4,10};
+//tiempos (2-Corchea,3-CorcheaPuntillo,4-Negra)
+volatile int speakerPin = 6;
+volatile int n = 0;
+volatile int velocidad=110;
+volatile int pause=0;
+int tim = 0;
+char nombrec[] = {"No Game No Life"};
+
+void setup() {                
+  lcd.begin(16,2); //define el numero de filas y columnas del LCD, se define en el bloque setup
+  Serial.begin(9600);
+  pinMode(21,INPUT_PULLUP);
+  pinMode(20,INPUT_PULLUP);
+  pinMode(19,INPUT_PULLUP);
+  pinMode(18,INPUT_PULLUP);
+  attachInterrupt(2, pausa, RISING) ;
+}
+
+void loop() {
+      refrescoab();
+  if (pause ==0){
+          refresco();
+    tone(speakerPin,cancion[n]);
+    delay(tiempo[n]*velocidad);
+    noTone(speakerPin);
+    delay(30);
+
+    if (tiempo[n]==10){ //Aqui comprueba si ha hecho el silencio de fin de cancion para reiniciar la melodia
+      n=-1;
+    };
+    n=n+1;
+    lcd.clear();
+  }
+}
+
+void refresco() {
+  lcd.setCursor(0,0);
+  lcd.print("Nota ");
+  switch (cancion[n]) {
+  case NOTE_C3:
+    lcd.print("Do");
+    break;
+  case NOTE_CS3:
+    lcd.print("Do#");
+    break;
+  case NOTE_D3:
+    lcd.print("Re");
+    break;
+  case NOTE_DS3:
+    lcd.print("Re#");
+    break;
+  case NOTE_E3:
+    lcd.print("Mi");
+    break;
+  case NOTE_F3:
+    lcd.print("Fa");
+    break;
+  case NOTE_FS3:
+    lcd.print("Fa#");
+    break;
+  case NOTE_G3:
+    lcd.print("Sol");
+    break;
+  case NOTE_GS3:
+    lcd.print("Sol#");
+    break;
+  case NOTE_A3:
+    lcd.print("La");
+    break;
+  case NOTE_AS3:
+    lcd.print("La#");
+    break;
+  case NOTE_B3:
+    lcd.print("Si");
+    break;
+  case NOTE_C4:
+    lcd.print("Do alto");
+    break;
+  case NOTE_CS4:
+    lcd.print("Do#");
+    break;
+  case NOTE_D4:
+    lcd.print("Re");
+    break;
+  case NOTE_DS4:
+    lcd.print("Re#");
+    break;
+  case NOTE_E4:
+    lcd.print("Mi");
+    break;
+  case NOTE_F4:
+    lcd.print("Fa");
+    break;
+  case NOTE_FS4:
+    lcd.print("Fa#");
+    break;
+  case NOTE_G4:
+    lcd.print("Sol");
+    break;
+  case NOTE_GS4:
+    lcd.print("Sol#");
+    break;
+  case NOTE_A4:
+    lcd.print("La");
+    break;
+  case NOTE_AS4:
+    lcd.print("La#");
+    break;
+  case NOTE_B4:
+    lcd.print("Si");
+    break;
+  default:
+    lcd.print("---");
+    break;
+  }
+    switch (tiempo[n]) {
+  case 2:
+    lcd.print(" Corch");
+    break;
+  case 3:
+    lcd.print(" CorchL");
+    break;
+  case 4:
+    lcd.print(" Negra");
+    break;
+  case 8:
+    lcd.print(" Blanca");
+    break;
+    default:
+    break;
+    }
+    if (pause==1){lcd.clear();}
+}
+void refrescoab(){
+  lcd.setCursor(0,1);
+  if (pause==1){
+  lcd.print("Pausa");
+  }
+  if (pause==0){
+    tim=tim+1;
+    if (tim <= 10)
+    {
+    lcd.print("Reproduciendo..");
+    }
+    if (tim >= 10)
+    {
+      lcd.print(nombrec);
+    }
+    if (tim >=25){tim=0;}
+    
+}
+}
+void pausa(){
+  n=0;
+  pause = !pause; 
+  noTone(speakerPin);
+}
+
+
